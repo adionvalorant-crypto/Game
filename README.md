@@ -4,6 +4,10 @@ A solo browser RPG prototype built as a static website.
 
 ## Current playable systems
 
+### v0.3 — Greywood vertical slice
+
+The current build turns the original static prototype into an explorable 2D world. Greywood now has a real village layout, roads, ponds, houses, smithy, inn, clinic, chapel, farms, market, notice board, named NPCs with time-based routines, interactable services, collision, a day/night clock and weather effects. The player walks the world with WASD and interacts through proximity rather than clicking map icons.
+
 - Full-screen RPG interface
 - Persistent local save with `localStorage`
 - Interactive world map with discovered and locked regions
