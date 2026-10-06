@@ -303,21 +303,42 @@ function npcPosition(id){const m=Math.floor(S.world.minutes%(24*60));const day=m
 function getEntities(){
   const a=[];
   if(S.player.area==="greywood"){
-    const ids=[["mara","npc","Mara"],["bram","npc","Bram"],["pella","npc","Pella"],["elian","npc","Elian"],["tomas","npc","Tomas"],["mae","npc","Sister Mae"],["kael","npc","Kael"]];
-    for(const [id,type,name] of ids){const [x,y]=npcPosition(id);a.push({id,type,name,x,y})}
+    for(const [id,name] of [["mara","Mara"],["bram","Bram"],["pella","Pella"],["elian","Elian"],["tomas","Tomas"],["mae","Sister Mae"],["kael","Kael"]]){
+      const [x,y]=npcPosition(id);a.push({id,type:"npc",name,x,y})
+    }
+    a.push({id:"inn",type:"building",name:"The Lantern & Loaf",x:1040,y:830});
+    a.push({id:"smithy",type:"building",name:"Bram's Smithy",x:1370,y:760});
+    a.push({id:"clinic",type:"building",name:"Elian's Clinic",x:760,y:790});
+    a.push({id:"chapel",type:"building",name:"Chapel of the Quiet Star",x:620,y:1010});
+    a.push({id:"hall",type:"building",name:"Village Hall",x:1480,y:1050});
     a.push({id:"way",type:"landmark",x:850,y:520,name:"The Old Waystone"});
-    a.push({id:"wolf",type:"enemy",x:1240,y:570,name:"Grey Wolf"});
-    a.push({id:"board",type:"board",x:930,y:790,name:"Notice Board"});
+    a.push({id:"wolf",type:"enemy",x:1320,y:620,name:"Grey Wolf"});
+    a.push({id:"board",type:"board",x:930,y:755,name:"Notice Board"});
     a.push({id:"cinder",type:"exit",x:150,y:920,name:"Cinder Road"});
     a.push({id:"salt",type:"exit",x:1990,y:920,name:"Saltmarsh"});
     if(S.player.level>=4&&S.quest.stage>=1)a.push({id:"below",type:"portal",x:1870,y:410,name:"Sealed Hollow"});
   }else if(S.player.area==="cinder"){
-    a.push({id:"mara",type:"npc",name:"Mara",x:860,y:650});a.push({id:"warden",type:"enemy",name:"The Road Warden",x:1250,y:690,boss:true});a.push({id:"bandit",type:"enemy",name:"Cinder Bandit",x:800,y:760});a.push({id:"greywood",type:"exit",name:"Greywood",x:130,y:820});a.push({id:"salt",type:"exit",name:"Saltmarsh",x:1990,y:780})
+    a.push({id:"mara",type:"npc",name:"Mara",x:860,y:650});
+    a.push({id:"warden",type:"enemy",name:"The Road Warden",x:1250,y:690,boss:true});
+    a.push({id:"bandit",type:"enemy",name:"Cinder Bandit",x:800,y:790});
+    a.push({id:"greywood",type:"exit",name:"Greywood",x:130,y:820});
+    a.push({id:"salt",type:"exit",name:"Saltmarsh",x:1990,y:780});
   }else if(S.player.area==="salt"){
-    a.push({id:"shrine",type:"landmark",name:"Drowned Shrine",x:1180,y:560});a.push({id:"bog",type:"enemy",name:"Bogling",x:980,y:720});a.push({id:"greywood",type:"exit",name:"Greywood",x:1970,y:920});if(S.player.level>=5)a.push({id:"high",type:"portal",name:"Mountain Gate",x:1850,y:310})
-  }else if(S.player.area==="high"){a.push({id:"ashen",type:"exit",name:"Ashen Veil",x:310,y:1250});a.push({id:"greywood",type:"exit",name:"Greywood",x:1940,y:1280})}
-  else if(S.player.area==="ashen"){a.push({id:"below",type:"portal",name:"The Door Below",x:1040,y:520});a.push({id:"high",type:"exit",name:"Highreach",x:1900,y:1100})}
-  else if(S.player.area==="below"){a.push({id:"void",type:"landmark",name:"Hollow Gate",x:1160,y:730});a.push({id:"high",type:"exit",name:"A Stair Up",x:1450,y:1200});a.push({id:"warden",type:"enemy",name:"Something Wearing a Crown",x:1420,y:670,boss:true})}
+    a.push({id:"shrine",type:"landmark",name:"Drowned Shrine",x:1180,y:560});
+    a.push({id:"bog",type:"enemy",name:"Bogling",x:980,y:720});
+    a.push({id:"greywood",type:"exit",name:"Greywood",x:1970,y:920});
+    if(S.player.level>=5)a.push({id:"high",type:"portal",name:"Mountain Gate",x:1850,y:310})
+  }else if(S.player.area==="high"){
+    a.push({id:"ashen",type:"exit",name:"Ashen Veil",x:310,y:1250});
+    a.push({id:"greywood",type:"exit",name:"Greywood",x:1940,y:1280})
+  }else if(S.player.area==="ashen"){
+    a.push({id:"below",type:"portal",name:"The Door Below",x:1040,y:520});
+    a.push({id:"high",type:"exit",name:"Highreach",x:1900,y:1100})
+  }else if(S.player.area==="below"){
+    a.push({id:"void",type:"landmark",name:"Hollow Gate",x:1160,y:730});
+    a.push({id:"high",type:"exit",name:"A Stair Up",x:1450,y:1200});
+    a.push({id:"warden",type:"enemy",name:"Something Wearing a Crown",x:1420,y:670,boss:true})
+  }
   return a.filter(o=>!o.hidden)
 }
 function drawWorldLabel(x,y,name,color="#e5e9ef",force=false){
@@ -394,17 +415,63 @@ function talk(id){
   if(id==="kael"){dialogueBox(names[id],r<1?"You should not be here yet.":"You keep looking at the wrong things.",[["Who are you?",()=>{S.relations.kael++;dialogueBox("Kael","Nobody important. Yet.",[["Back",closeDialogue]])}],["Ask about the mountain",()=>{S.relations.kael++;dialogueBox("Kael","Highreach does not open because you are strong. It opens because you are expected.",[["Back",closeDialogue]])}],["Leave",closeDialogue]]);return}
 }
 function interact(){
-  if(!nearEntity)return;const o=nearEntity;
+  if(!nearEntity)return;
+  const o=nearEntity;
   if(o.type==="enemy"){startCombat(o.id);return}
   if(o.type==="exit"){travel(o.id);return}
   if(o.type==="npc"){talk(o.id);return}
+  if(o.type==="building"){interactBuilding(o.id);return}
   if(o.type==="board"){boardPanel();return}
   if(o.id==="way"){
-    if(S.quest.stage===0)dialogueBox("The Old Waystone","The stone is warm. Your name is carved beneath a date that has not happened yet.",[["Touch it",()=>{S.quest.stage=1;S.quest.title="The Road Warden";S.quest.text="Mara on Cinder Road mentioned someone who knows why the waystone remembers you.";addLog("<b>STORY</b> The waystone knows your name.");closeDialogue()}],["Leave",closeDialogue]]);
-    else toast("The stone has nothing new to say. Not yet.")
+    if(S.quest.stage===0){
+      dialogueBox("The Old Waystone","The stone is warm. Your name is carved beneath a date that has not happened yet.",[
+        ["Touch it",()=>{S.quest.stage=1;S.quest.title="The Road Warden";S.quest.text="Mara on Cinder Road mentioned someone who knows why the waystone remembers you.";log("<b>STORY</b> The waystone knows your name.");closeDialogue()}],
+        ["Leave",closeDialogue]
+      ])
+    }else toast("The stone has nothing new to say. Not yet.")
   }
-  if(o.id==="shrine")dialogueBox("Drowned Shrine","Something beneath the water knocks once against stone. Then twice.",[["Reach into the water",()=>{if(!S.player.inv.includes("coin"))S.player.inv.push("coin");addLog("<b>FOUND</b> Beggar's Coin. Your hand comes back dry.");toast("Found: Beggar's Coin");closeDialogue();renderUI()}],["Walk away",closeDialogue]]);
-  if(o.type==="portal"){if(o.id==="below"){if(S.player.level>=4&&S.quest.stage>=1){S.player.flags.secret=true;travel("below");addLog("<b>SECRET DISCOVERY</b> You found a stair beneath the map.");evaluateClasses()}else toast("Something about this place is not ready for you")}if(o.id==="high"){travel("high")}}
+  if(o.id==="shrine")dialogueBox("Drowned Shrine","Something beneath the water knocks once against stone. Then twice.",[
+    ["Reach in",()=>{if(!S.player.inv.includes("coin"))S.player.inv.push("coin");addLog("<b>FOUND</b> Beggar's Coin. Your hand comes back dry.");closeDialogue()}],
+    ["Leave",closeDialogue]
+  ]);
+  if(o.type==="portal"){
+    if(o.id==="below"){if(S.player.level>=4&&S.quest.stage>=1){S.player.flags.secret=true;travel("below");addLog("<b>SECRET DISCOVERY</b> You found a stair beneath the map.");evaluateClasses()}else toast("Something about this place is not ready for you")}
+    if(o.id==="high")travel("high")
+  }
+}
+function interactBuilding(id){
+  if(id==="inn"){
+    dialogueBox("The Lantern & Loaf","Warm light spills through the shutters. Someone is laughing inside.",[
+      ["Rent a room — 5g",()=>{if(S.player.gold<5){toast("Not enough gold.");return}S.player.gold-=5;S.player.hp=S.player.maxHp;S.player.mp=S.player.maxMp;advanceTime(120);S.relations.pella++;addLog("<b>REST</b> You sleep beneath Greywood's rain.");closeDialogue();renderCore();save()}],
+      ["Ask for rumors",()=>talk("pella")],
+      ["Leave",closeDialogue]
+    ]);
+    return;
+  }
+  if(id==="smithy"){dialogueBox("Bram's Smithy","The ring of a hammer stops for half a second when you enter.",[
+    ["Browse the forge",()=>{closeDialogue();shopPanel()}],
+    ["Leave",closeDialogue]
+  ]);return}
+  if(id==="clinic"){
+    dialogueBox("Elian's Clinic","Herbs, clean linen, and the sharp smell of medicine.",[
+      ["Full treatment — 8g",()=>{if(S.player.gold<8){toast("Not enough gold.");return}S.player.gold-=8;S.player.hp=S.player.maxHp;S.relations.elian++;addLog("<b>HEALED</b> Elian patches you up.");closeDialogue();renderCore();save()}],
+      ["Ask about the mark",()=>talk("elian")],
+      ["Leave",closeDialogue]
+    ]);return;
+  }
+  if(id==="chapel"){
+    dialogueBox("Chapel of the Quiet Star","Three candles burn in a room with seven empty stands.",[
+      ["Pray",()=>{S.relations.mae++;S.player.mp=Math.min(S.player.maxMp,S.player.mp+8);advanceTime(15);addLog("<b>PRAYER</b> One of the empty stands lights by itself.");toast("MP restored");closeDialogue();renderCore()}],
+      ["Speak with Sister Mae",()=>talk("mae")],
+      ["Leave",closeDialogue]
+    ]);return;
+  }
+  if(id==="hall"){
+    dialogueBox("Village Hall","The hall is empty except for a cracked board covered in names.",[
+      ["Read the board",()=>{S.quest.title="Names of the Missing";S.quest.text="Three names are crossed out. One is dated tomorrow.";addLog("<b>NEW THREAD</b> Names of the Missing.");closeDialogue();renderCore()}],
+      ["Leave",closeDialogue]
+    ]);return;
+  }
 }
 function travel(id){if(id==="high"&&S.player.level<5){toast("The mountain gate does not open for you.");return}if(!S.known.includes(id))S.known.push(id);S.player.area=id;S.player.x=area(id)?.spawn?.[0]||900;S.player.y=area(id)?.spawn?.[1]||800;advanceTime(12);addLog("<b>ARRIVED</b> "+DATA.areas[id].name+" — "+DATA.areas[id].sub);renderUI();save()}
 
