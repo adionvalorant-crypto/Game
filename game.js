@@ -59,7 +59,7 @@ const BASE=()=>({
     str:7,dex:6,int:5,vit:6,luck:1,armor:0,crit:4,magic:0,classId:"unbound",
     skills:["strike"],inv:["sword","buckler","cloak"],eq:{main:"sword",off:"buckler",chest:"cloak",ring:null},
     flags:{red:false,bribe:false,firstBoss:false,blood:false,fool:0,secret:false,mayorTrust:0,farmerQuest:0,bridge:0},
-    area:"greywood",x:1010,y:900
+    area:"greywood",x:1010,y:1005
   },
   quest:{stage:0,title:"A Door in the Fog",text:"Find the old waystone beyond Greywood. Someone has left a mark there that looks almost like your name."},
   known:["greywood","cinder","salt"],dead:[],log:["The road gives way to trees.","Greywood is quieter than a village this close to a trade road should be."],
@@ -68,6 +68,9 @@ const BASE=()=>({
 });
 
 let S=loadSave(),keys={},nearEntity=null,combat=null,dialogue=false,cam={x:0,y:0},last=performance.now(),uiTick=0;
+if(S.player.area==="greywood" && S.player.x>900 && S.player.x<1170 && S.player.y>745 && S.player.y<925){
+  S.player.x=1010;S.player.y=1005;save();
+}
 
 const item=id=>DATA.items.find(x=>x.id===id);
 const skill=id=>DATA.skills.find(x=>x.id===id);
@@ -298,7 +301,71 @@ function drawExit(o){ctx.fillStyle="#765536";ctx.fillRect(o.x-54,o.y-68,108,108)
 function drawPortal(o){ctx.strokeStyle="#947cb8";ctx.lineWidth=5;ctx.beginPath();ctx.arc(o.x,o.y,39,0,7);ctx.stroke();ctx.fillStyle="#211a30";ctx.beginPath();ctx.arc(o.x,o.y,31,0,7);ctx.fill();ctx.lineWidth=1;drawWorldLabel(o.x,o.y+51,o.name,"#b7a2ff")}
 function drawLandmark(o){ctx.fillStyle="#6f604f";ctx.beginPath();ctx.moveTo(o.x-25,o.y+28);ctx.lineTo(o.x-18,o.y-25);ctx.lineTo(o.x,o.y-52);ctx.lineTo(o.x+18,o.y-25);ctx.lineTo(o.x+25,o.y+28);ctx.closePath();ctx.fill();ctx.strokeStyle="#c2a66e";ctx.stroke();drawWorldLabel(o.x,o.y+39,o.name,"#d8bd7f")}
 function drawBoard(o){ctx.fillStyle="#553b27";ctx.fillRect(o.x-44,o.y-54,88,62);ctx.fillStyle="#a38153";ctx.fillRect(o.x-36,o.y-45,72,41);ctx.fillStyle="#dfc68f";for(let i=0;i<4;i++)ctx.fillRect(o.x-25,o.y-38+i*9,50,3);drawWorldLabel(o.x,o.y+24,o.name,"#d8bd80")}
-function drawPlayer(){const x=S.player.x-cam.x,y=S.player.y-cam.y;ctx.save();ctx.translate(x,y);ctx.fillStyle="#0007";ctx.beginPath();ctx.ellipse(0,34,33,11,0,0,7);ctx.fill();ctx.fillStyle="#dfc58e";ctx.beginPath();ctx.arc(0,-13,10,0,7);ctx.fill();ctx.fillStyle="#55362a";ctx.fillRect(-15,-2,30,30);ctx.fillStyle="#9a6c42";ctx.fillRect(-19,3,38,13);const w=item(S.player.eq.main);if(w&&w.type==="Weapon"){ctx.strokeStyle="#d8c891";ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(16,10);ctx.lineTo(30,-8);ctx.stroke()}ctx.lineWidth=1;ctx.restore()}
+function drawPlayer(){
+  const x=S.player.x-cam.x,y=S.player.y-cam.y;
+  ctx.save();
+  ctx.translate(x,y);
+
+  // Ground shadow + player marker: make the protagonist unmistakable.
+  ctx.fillStyle="rgba(0,0,0,.38)";
+  ctx.beginPath();ctx.ellipse(0,26,30,10,0,0,Math.PI*2);ctx.fill();
+
+  const pulse=3+Math.sin(performance.now()/260)*2;
+  ctx.strokeStyle="rgba(240,199,108,.55)";
+  ctx.lineWidth=2;
+  ctx.beginPath();ctx.ellipse(0,28,38+pulse,12,0,0,Math.PI*2);ctx.stroke();
+  ctx.lineWidth=1;
+
+  // Cloak silhouette.
+  ctx.fillStyle="#6e4c35";
+  ctx.beginPath();
+  ctx.moveTo(-18,-2);ctx.quadraticCurveTo(-28,10,-24,30);
+  ctx.lineTo(24,30);ctx.quadraticCurveTo(28,10,18,-2);ctx.closePath();ctx.fill();
+
+  // Torso / belt.
+  ctx.fillStyle="#3b2930";ctx.fillRect(-15,-7,30,30);
+  ctx.fillStyle="#a47b49";ctx.fillRect(-18,8,36,7);
+  ctx.fillStyle="#dfc078";ctx.fillRect(-3,7,7,8);
+
+  // Boots.
+  ctx.fillStyle="#211c1c";ctx.fillRect(-11,22,8,13);ctx.fillRect(3,22,8,13);
+
+  // Head + hair.
+  ctx.fillStyle="#d6a171";ctx.beginPath();ctx.arc(0,-18,11,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle="#33231f";ctx.beginPath();ctx.arc(0,-21,12,Math.PI,Math.PI*2);ctx.fill();
+
+  // Shoulder guard.
+  ctx.fillStyle="#8d744d";ctx.beginPath();ctx.arc(-17,0,7,0,Math.PI*2);ctx.fill();
+
+  // Equipped weapon — visible at a readable scale.
+  const weapon=item(S.player.eq.main);
+  if(weapon&&weapon.type==="Weapon"){
+    ctx.strokeStyle=weapon.rarity==="legendary"?"#f0c66f":"#d9d5c8";
+    ctx.lineWidth=4;
+    ctx.beginPath();ctx.moveTo(17,10);ctx.lineTo(34,-14);ctx.stroke();
+    ctx.strokeStyle="#5f3d29";ctx.lineWidth=3;
+    ctx.beginPath();ctx.moveTo(14,12);ctx.lineTo(20,18);ctx.stroke();
+    ctx.lineWidth=1;
+  }
+
+  // Tiny protagonist crown/chevron above the head.
+  ctx.fillStyle="#f0ca78";
+  ctx.beginPath();ctx.moveTo(0,-42);ctx.lineTo(-7,-33);ctx.lineTo(7,-33);ctx.closePath();ctx.fill();
+
+  // Nameplate follows the character.
+  ctx.font="bold 10px Inter, sans-serif";
+  ctx.textAlign="center";
+  const label=S.player.name||"Ashborn";
+  const tw=ctx.measureText(label).width+18;
+  ctx.fillStyle="rgba(5,7,10,.90)";
+  ctx.fillRect(-tw/2,-66,tw,20);
+  ctx.strokeStyle="rgba(240,199,108,.58)";
+  ctx.strokeRect(-tw/2,-66,tw,20);
+  ctx.fillStyle="#f0d39a";
+  ctx.fillText(label,0,-52);
+
+  ctx.restore();
+}
 function drawLighting(w,h){
   let alpha=0;
   const m=S.world.minutes%(24*60);
@@ -321,7 +388,7 @@ function enemyTurn(){if(!combat)return;let e=combat.e;let dmg=Math.max(1,Math.ro
 function strike(){if(!combat)return;const isCrit=Math.random()*100<crit();let d=Math.max(1,Math.round(attackPower()*(isCrit?1.9:1)-combat.e.armor*.6));if(combat.focus)d=Math.round(d*1.2);combat.e.hp=Math.max(0,combat.e.hp-d);pop((isCrit?"CRIT ":"")+d,isCrit?"crit":"");if(combat.e.hp<=0){victory();return}enemyTurn()}
 function combatSkill(id){if(!combat)return;const s=skill(id);if(!s)return;if(s.cost>S.player.mp){toast("Not enough MP");return}if(id==="strike"){strike();return}S.player.mp-=s.cost;if(id==="guard"){combat.guard=true;pop("GUARD","good")}if(id==="focus"){combat.focus=true;S.player.mp=Math.min(S.player.maxMp,S.player.mp+Math.round(S.player.maxMp*.25));pop("FOCUS","good")}if(id==="ember"){let d=Math.max(2,Math.round(S.player.int*2.2+magic()*2.4+8));combat.e.hp=Math.max(0,combat.e.hp-d);pop("EMBER "+d,"crit")}if(id==="bloodstep"){S.player.hp=Math.max(1,S.player.hp-10);let d=Math.round(attackPower()*2.3);combat.e.hp=Math.max(0,combat.e.hp-d);pop("BLOOD "+d,"crit")}if(id==="veil"){combat.veil=true;pop("VEIL","good")}if(combat.e.hp<=0){victory();return}enemyTurn()}
 function victory(){const e=combat.e;S.player.gold+=e.gold;addXP(e.xp);S.dead.push(e.id);if(e.id==="warden"){S.player.flags.firstBoss=true;S.quest.stage=2;S.quest.title="A Name in the Dark";S.quest.text="Return to Greywood. The mark on the waystone was yours — but not from this life."}if(e.loot&&!S.player.inv.includes(e.loot)&&Math.random()>.35){S.player.inv.push(e.loot);const i=item(e.loot);addLog("<b>LOOT FOUND</b> "+i.name+" ["+i.rarity.toUpperCase()+"]");toast("Loot: "+i.name)}advanceTime(20);combat=null;document.getElementById("combatHud").classList.add("hidden");renderUI();save()}
-function fall(){S.player.hp=Math.max(1,Math.floor(S.player.maxHp*.2));S.player.area="greywood";S.player.x=1010;S.player.y=900;combat=null;document.getElementById("combatHud").classList.add("hidden");advanceTime(45);addLog("<b>YOU FELL</b> The road remembers. You wake beneath Greywood rain.");renderUI()}
+function fall(){S.player.hp=Math.max(1,Math.floor(S.player.maxHp*.2));S.player.area="greywood";S.player.x=1010;S.player.y=1005;combat=null;document.getElementById("combatHud").classList.add("hidden");advanceTime(45);addLog("<b>YOU FELL</b> The road remembers. You wake beneath Greywood rain.");renderUI()}
 
 function dialogueBox(speaker,text,choices){dialogue=true;document.getElementById("dialogueSpeaker").textContent=speaker;document.getElementById("dialogueText").textContent=text;document.getElementById("dialogueChoices").innerHTML=choices.map((x,i)=>"<button class='choice' data-choice='"+i+"'>"+x[0]+"</button>").join("");window.__choices=choices;document.getElementById("dialogue").classList.remove("hidden")}
 function closeDialogue(){dialogue=false;document.getElementById("dialogue").classList.add("hidden")}
