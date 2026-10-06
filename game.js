@@ -67,7 +67,7 @@ function evaluateClasses(){let p=S.player;if(p.level>=3&&p.flags.red&&p.classId=
 function unlockClass(id){let c=cls(id);S.player.classId=id;log("<b>CLASS DISCOVERED</b> "+c.name+" ["+c.rarity.toUpperCase()+"] — "+c.desc);toast("CLASS DISCOVERED — "+c.name);renderUI()}
 function movement(dt){if(combat||dialogue)return;let dx=(keys.d?1:0)-(keys.a?1:0),dy=(keys.s?1:0)-(keys.w?1:0);if(dx||dy){let len=Math.hypot(dx,dy);dx/=len;dy/=len;let sp=210;S.player.x=clamp(S.player.x+dx*sp*dt,35,WORLD.w-35);S.player.y=clamp(S.player.y+dy*sp*dt,55,WORLD.h-45)}}
 function collides(x,y){return false}
-function draw(){const w=canvas.clientWidth,h=canvas.clientHeight,dpr=devicePixelRatio||1;if(canvas.width!==w*dpr||canvas.height!==h*dpr){canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}cam.x=clamp(S.player.x-w/2,0,WORLD.w-w);cam.y=clamp(S.player.y-h/2,0,WORLD.h-h);ctx.clearRect(0,0,w,h);drawTerrain(w,h);drawWorldObjects();drawPlayer();drawAtmosphere(w,h);findNear();renderUI()}
+function draw(){const w=canvas.clientWidth,h=canvas.clientHeight,dpr=devicePixelRatio||1;if(canvas.width!==w*dpr||canvas.height!==h*dpr){canvas.width=w*dpr;canvas.height=h*dpr;ctx.setTransform(dpr,0,0,dpr,0,0)}cam.x=clamp(S.player.x-w/2,0,WORLD.w-w);cam.y=clamp(S.player.y-h/2,0,WORLD.h-h);ctx.clearRect(0,0,w,h);drawTerrain(w,h);drawWorldObjects();drawPlayer();drawAtmosphere(w,h);findNear()}
 function drawTerrain(w,h){let base=area(S.player.area);ctx.fillStyle=base?.color||"#28302a";ctx.fillRect(0,0,w,h);ctx.save();ctx.translate(-cam.x,-cam.y);
 ctx.fillStyle="#303a31";ctx.fillRect(0,0,WORLD.w,WORLD.h);
 for(const g of grass){ctx.globalAlpha=g.a;ctx.fillStyle="#4a5948";ctx.fillRect(g.x,g.y,2,5);ctx.fillRect(g.x+3,g.y+1,1.5,4)}ctx.globalAlpha=1;
